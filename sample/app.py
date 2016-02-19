@@ -4,7 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.script import Manager
 
 from flask.ext.login import UserMixin
-from flask.ext.migrate import Migrate, MigrateCommand
+#from flask.ext.migrate import Migrate, MigrateCommand
+
+from flask.ext.login import LoginManager
 
 import os
 
@@ -20,8 +22,9 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
 
-migrate = Migrate(app, db)
-manager.add_command('db', MigrateCommand)
+#migrate = Migrate(app, db)
+#manager.add_command('db', MigrateCommand)
+
 
 class User(UserMixin, db.Model):
     """
@@ -37,6 +40,14 @@ class User(UserMixin, db.Model):
     userid = db.relationship('Article', backref='user')
 
     password_hash = db.Column(db.String(128))
+
+
+   def __init__():
+       self.username = None
+       self.email = None
+       self.userid = None
+       self.password_hash = None
+
 
     @property
     def password(self):
@@ -68,8 +79,11 @@ class Article(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('user.uid'))
     title = db.Column(db.String(512) )
     body = db.Column(db.Text)
-
-
+    published_on = db.Column(db.DateTime)
+    def __init__():
+        self.author_id = None
+        self.title = None
+        self.body = None
 
 @app.route('/signin')
 def signin():
@@ -90,4 +104,5 @@ def testes():
 
 
 if __name__ == "__main__":
+    db.create_all()
     manager.run()
