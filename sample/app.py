@@ -1,8 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask.ext.script import Manager
 
 from flask.ext.login import UserMixin
+from flask.ext.migrate import Migrate, MigrateCommand
 
 import os
 
@@ -10,27 +12,29 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-
+manager = Manager(app)
 app.config['SQLALCHEMY_DATABASE_URI'] =\
-        'sqlite:///' + os.path.join(basedir, 'user.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'user.db')
 
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
 
+migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
 
 class User(UserMixin, db.Model):
     """
     とりあえず、ユーザーの名前とメアドとパスワード（ハッシュ後）
     回生、学部、等々は略
     """
-    __tablename__ = 'userdb'
+    __tablename__ = 'user'
 
     uid = db.Column(db.Integer, primary_key = True)# USER ID, PRIMARY
 
     username = db.Column(db.String(64), unique = True, index = True)
     email = db.Column(db.String(64), unique = True, index = True)
-    userid = db.relationship('Article', backref='role')
+    userid = db.relationship('Article', backref='user')
 
     password_hash = db.Column(db.String(128))
 
@@ -57,7 +61,7 @@ class Article(db.Model):
     """
     本文記事　まわり
     """
-    __tablename__ = 'articledb'
+    __tablename__ = 'article'
 
     aid = db.Column(db.Integer, primary_key = True) # ARTICLE ID, PRIMARY
 
@@ -79,7 +83,6 @@ def login():
 
 
 @app.route('/index')
-@app.login_required
 def testes():
     render_template("./test.html")
 
@@ -87,5 +90,4 @@ def testes():
 
 
 if __name__ == "__main__":
-
-    app.run()
+    manager.run()

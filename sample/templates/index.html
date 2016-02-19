@@ -12,27 +12,27 @@
 
   <div class="page">
 
-    <h1>Flaskr-TDD</h1>
+    <h1>teamH</h1>
     <div class="metanav">
-      {% if not session.logged_in %}
-        <a href="{{ url_for('login') }}">log in</a>
-      {% else %}
-        <a href="{{ url_for('logout') }}">log out</a>
-      {% endif %}
+        {% if not session.logged_in %} <!--ここな-->
+            <a href="{{ url_for('login') }}">log in</a>
+        {% else %}
+            <a href="{{ url_for('logout') }}">log out</a>
+        {% endif %}
     </div>
 
 
-    {% for message in get_flashed_messages() %}
+    {% for message in get_flashed_messages() %} <!--この一塊 -->
       <div class="flash">{{ message }}</div>
     {% endfor %}
     {% block body %}{% endblock %}
 
 
-
+    <!--ここで記事をとうこう -->
     {% if session.logged_in %}
       <form action="{{ url_for('add_entry') }}" method="post" class="add-entry">
         <dl>
-          <dt>Title:</dt>
+            <dt>Title:</dt>
           <dd><input type="text" size="30" name="title"></dd>
           <dt>Text:</dt>
           <dd><textarea name="text" rows="5" cols="40"></textarea></dd>
@@ -41,8 +41,10 @@
       </form>
     {% endif %}
     
+
+
     <ul class="entries">
-      {% for entry in entries %}
+        {% for entry in entries %} <!--ここに名前、記事等々を表示して動作を確認-->
       <li class="entries"><h2 id={{ entry.id }}>{{ entry.title }}</h2>{{ entry.text|safe }}</li>
       {% else %}
         <li><em>No entries yet. Add some!</em></li>
