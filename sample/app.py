@@ -3,10 +3,14 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.script import Manager
 
-from flask.ext.login import UserMixin
 #from flask.ext.migrate import Migrate, MigrateCommand
 
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, UserMixin, login_required
+
+from flask.ext.wtf import Form
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import Required, Length, Email, Regexp, EqualTo
+from wtforms import ValidationError
 
 import os
 
@@ -24,6 +28,9 @@ db = SQLAlchemy(app)
 
 #migrate = Migrate(app, db)
 #manager.add_command('db', MigrateCommand)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
 class User(UserMixin, db.Model):
@@ -67,6 +74,27 @@ class User(UserMixin, db.Model):
         """
         return check_password_hash(self.password_hash, password)
 
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.email
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
+
+
+@login_manager.user_loader
+def load_user(user_id):
+        return User.get(user_id)
+
 
 class Article(db.Model):
     """
@@ -85,6 +113,31 @@ class Article(db.Model):
         self.title = None
         self.body = None
 
+
+
+class RegistrationForm(Form):
+    email = StringField('Email', validators=[Required(), Length(1, 64),
+                                           Email()])
+    username = StringField('Username', validators=[
+        Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
+                                          'Usernames must have only letters, '
+                                          'numbers, dots or underscores')])
+    password = PasswordField('Password', validators=[
+        Required(), EqualTo('password2', message='Passwords must match.')])
+    password2 = PasswordField('Confirm password', validators=[Required()])
+    submit = SubmitField('Register')
+
+#    def validate_email(self, field):
+#        if User.query.filter_by(email=field.data).first():
+#            raise ValidationError('Email already registered.')
+#
+#    def validate_username(self, field):
+#        if User.query.filter_by(username=field.data).first():
+#            raise ValidationError('Username already in use.')
+
+
+
+
 @app.route('/signin')
 def signin():
     render_template("./templates/signin.html")
@@ -100,6 +153,22 @@ def login():
 def testes():
     render_template("./test.html")
 
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(email=form.email.data,
+                    username=form.username.data,
+                    password=form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        token = user.generate_confirmation_token()
+#        send_email(user.email, 'Confirm Your Account',
+#                   'auth/email/confirm', user=user, token=token)
+#        flash('A confirmation email has been sent to you by email.')
+        return redirect(url_for('testes'))
+    return render_template('./templates/login.html', form=form)
 
 
 

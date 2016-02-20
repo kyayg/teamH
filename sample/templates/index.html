@@ -14,7 +14,7 @@
 
     <h1>teamH</h1>
     <div class="metanav">
-        {% if not session.logged_in %} <!--ここな-->
+        {% if not current_user.is_authenticated %} <!--ここな-->
             <a href="{{ url_for('login') }}">log in</a>
         {% else %}
             <a href="{{ url_for('logout') }}">log out</a>
@@ -29,7 +29,7 @@
 
 
     <!--ここで記事をとうこう -->
-    {% if session.logged_in %}
+    {% if current_user.is_authenticated %}
       <form action="{{ url_for('add_entry') }}" method="post" class="add-entry">
         <dl>
             <dt>Title:</dt>
