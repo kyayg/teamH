@@ -3,7 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.script import Manager
 
-#from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.migrate import Migrate, MigrateCommand
 
 from flask.ext.login import LoginManager, UserMixin, login_required
 
@@ -26,8 +26,8 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
 
-#migrate = Migrate(app, db)
-#manager.add_command('db', MigrateCommand)
+migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -45,7 +45,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique = True, index = True)
     email = db.Column(db.String(64), unique = True, index = True)
     userid = db.relationship('Article', backref='user')
-
+    year = db.Column(db.Integer)
     password_hash = db.Column(db.String(128))
 
     @property
