@@ -48,14 +48,6 @@ class User(UserMixin, db.Model):
 
     password_hash = db.Column(db.String(128))
 
-
-   def __init__():
-       self.username = None
-       self.email = None
-       self.userid = None
-       self.password_hash = None
-
-
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -108,12 +100,6 @@ class Article(db.Model):
     title = db.Column(db.String(512) )
     body = db.Column(db.Text)
     published_on = db.Column(db.DateTime)
-    def __init__():
-        self.author_id = None
-        self.title = None
-        self.body = None
-
-
 
 class RegistrationForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64),
@@ -154,7 +140,7 @@ def testes():
     render_template("./test.html")
 
 
-@auth.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
