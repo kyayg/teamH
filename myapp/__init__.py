@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 
+from flask.ext.migrate import import Migrate, MigrateCommand
+
 import os
 
 
@@ -15,6 +17,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] =\
             'sqlite:///' + os.path.join(basedir, 'db')
 
 db = SQLAlchemy(app)
+
+migrate = Migrate(app,db)
+manager.add_command('db', MigrateCommand)
+
 
 @app.route('/')
 def index():
