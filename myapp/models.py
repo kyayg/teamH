@@ -1,4 +1,4 @@
-from myapp import app, db, os
+from myapp import app, db
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import LoginManager, UserMixin, login_required
@@ -98,3 +98,11 @@ class Article(db.Model):
         self.author_id = None
         self.title = None
         self.body = None
+
+
+def hello():
+    return "Hello"
+
+
+if __name__ == "__main__":
+    db.create_all()

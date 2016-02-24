@@ -1,52 +1,28 @@
+import os
 from flask import Flask, render_template, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 
 from flask.ext.migrate import Migrate, MigrateCommand
 
-import os
+from flask.ext.bootstrap import Bootstrap
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+app.config.from_object('config')
 manager = Manager(app)
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] =\
-            'sqlite:///' + os.path.join(basedir, 'db')
+            'sqlite:///' + os.path.join(basedir, 'main.db')
 
 db = SQLAlchemy(app)
 
 migrate = Migrate(app,db)
 manager.add_command('db', MigrateCommand)
 
+Bootstrap(app)
 
-@app.route('/')
-def index():
-
-    return 'HelloWorld'
-
-
-@app.route('/register')
-def register():
-
-    return "This is register page"
-
-@app.route('/login')
-def login():
-
-    return "This is login page"
-
-@app.route('/logout')
-def logout():
-
-    return "click logout button, redirect / "
-
-
-
-
-
-
-
+import myapp.views
 
